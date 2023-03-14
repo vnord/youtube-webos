@@ -1,7 +1,7 @@
 {
   "id": "youtube.leanback.v4",
   "version": "0.3.1",
-  "vendor": "My Company",
+  "vendor": "Vendor",
   "type": "web",
   "main": "index.html",
   "title": "YouTube",
