@@ -1,0 +1,61 @@
+
+name: Build & Release
+
+on:
+  push:
+    branches:
+      - '!*'
+    tags:
+      - 'v*.*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run package
+      - run: echo RELEASE_FILENAME_IPK=`ls *.ipk` >> $GITHUB_ENV
+      - run: npm run manifest
+
+      - name: Create Release
+        id: create_release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: ${{ github.ref_name }}
+          title: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: true
+
+      - name: Upload IPK asset
+        id: upload-ipk-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{github.workspace}}/${{env.RELEASE_FILENAME_IPK}}
+          asset_name: ${{env.RELEASE_FILENAME_IPK}}
+          asset_content_type: application/vnd.debian.binary-package
+
+      - name: Upload Manifest asset
+        id: upload-manifest-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{github.workspace}}/youtube.tinvn.v1.manifest.json
+          asset_name: youtube.tinvn.v1.manifest.json
+          asset_content_type: application/json
