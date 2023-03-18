@@ -5,7 +5,7 @@ process.exit(
     'node',
     [
       './node_modules/@webosose/ares-cli/bin/ares-install.js',
-      `./youtube.tinvn.v4_${process.env.npm_package_version}.ipk`
+      `./youtube.tinvn.v1_${process.env.npm_package_version}.ipk`
     ],
     { stdio: 'inherit' }
   ).status
